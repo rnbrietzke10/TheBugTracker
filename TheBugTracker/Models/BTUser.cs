@@ -9,11 +9,11 @@ namespace TheBugTracker.Models
     {
         [Required]
         [Display(Name = "First Name")]
-        public required string FirstName { get; set; }
+        public  string FirstName { get; set; }
 
         [Required]
         [Display(Name = "Last Name")]
-        public required string LastName { get; set; }
+        public  string LastName { get; set; }
 
         [NotMapped]
         public string? FullName { get { return $"{FirstName} {LastName}"; } }

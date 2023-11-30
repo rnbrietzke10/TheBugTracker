@@ -18,7 +18,7 @@ namespace TheBugTracker.Models
         public Guid CompanyToken { get; set; }
 
         [DisplayName("Company")]
-        public int? CompanyId { get; set; }
+        public int CompanyId { get; set; }
 
         [DisplayName("Project")]
         public int ProjectId { get; set; }
