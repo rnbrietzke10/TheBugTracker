@@ -42,10 +42,10 @@ namespace TheBugTracker.Models
 
 
         [DisplayName("Ticket Owner")]
-        public string OwnerUserId { get; set; }
+        public string? OwnerUserId { get; set; }
 
         [DisplayName("Ticket Developer")]
-        public string DeveloperUserId { get; set; }
+        public string? DeveloperUserId { get; set; }
 
         
         

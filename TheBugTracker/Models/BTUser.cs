@@ -21,15 +21,15 @@ namespace TheBugTracker.Models
 
         [NotMapped]
         [DataType(DataType.Upload)]
-        public IFormFile AvatarFormFile { get; set; }
+        public IFormFile? AvatarFormFile { get; set; }
 
         [DisplayName("File Name")]
-        public string AvatarFileName { get; set; }
+        public string? AvatarFileName { get; set; }
 
-        public byte[] AvatarFileData { get; set; }
+        public byte[]? AvatarFileData { get; set; }
 
         [DisplayName("File Extension")]
-        public string AvatarContentType { get; set; }
+        public string? AvatarContentType { get; set; }
 
     
         public int? CompanyId { get; set; }

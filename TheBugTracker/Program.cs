@@ -1,19 +1,22 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using System;
 using TheBugTracker.Data;
 using TheBugTracker.Models;
 using TheBugTracker.Services;
 using TheBugTracker.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
-// Add services to the container.
-//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 var connectionString = builder.Configuration.GetSection("pgSettings")["pgConnection"] ?? throw new InvalidOperationException("Connection string 'pgConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(DataUtility.GetConnectionString(builder.Configuration),
+    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimeStampBehavior", true);
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentity<BTUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -36,6 +39,11 @@ builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailS
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+
+
+await DataUtility.ManageDataAsync(app, builder.Configuration);
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -30,15 +30,15 @@ namespace TheBugTracker.Models
 
         [NotMapped]
         [DataType(DataType.Upload)]
-        public IFormFile ImageFormFile { get; set; }
+        public IFormFile? ImageFormFile { get; set; }
 
         [DisplayName("File Name")]
-        public string ImageFileName { get; set; }
+        public string? ImageFileName { get; set; }
 
-        public byte[] ImageFileData { get; set; }
+        public byte[]? ImageFileData { get; set; }
 
         [DisplayName("File Extension")]
-        public string ImageContentType { get; set; }
+        public string? ImageContentType { get; set; }
 
         [DisplayName("Archived")]
         public bool Archived { get; set; }
