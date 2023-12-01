@@ -15,36 +15,44 @@ namespace TheBugTracker.Services
         {
             _mailSettings = mailSettings.Value;
         }
-        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
-        {
-            MimeMessage sentEmail = new();
-            sentEmail.Sender = MailboxAddress.Parse(_mailSettings.Mail);
-            sentEmail.To.Add(MailboxAddress.Parse(email));
-            sentEmail.Subject = subject;
+		public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+		{
 
+			var emailSender = _mailSettings.Email ?? Environment.GetEnvironmentVariable("Email");
+			MimeMessage newEmail = new MimeMessage();
+			newEmail.Sender = MailboxAddress.Parse(emailSender);
 
-            var builder = new BodyBuilder
-            {
-                HtmlBody = htmlMessage
-            };
+			foreach (var emailAddress in email.Split(";"))
+			{
+				newEmail.To.Add(MailboxAddress.Parse(emailAddress));
+			}
 
-            sentEmail.Body = builder.ToMessageBody();
+			newEmail.Subject = subject;
 
-            try
-            {
-                using var smtp = new SmtpClient();
-                smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
-                smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
+			BodyBuilder emailBody = new BodyBuilder();
 
-                await smtp.SendAsync(sentEmail);
+			emailBody.HtmlBody = htmlMessage;
+			newEmail.Body = emailBody.ToMessageBody();
 
-                smtp.Disconnect(true);
-            }
-            catch (Exception)
-            {
+			// Login to smtp client
+			using MailKit.Net.Smtp.SmtpClient smtpClient = new();
 
-                throw;
-            }
-        }
-    }
+			try
+			{
+				var host = _mailSettings.Host ?? Environment.GetEnvironmentVariable("Host");
+				var port = _mailSettings.Port != 0 ? _mailSettings.Port : int.Parse(Environment.GetEnvironmentVariable("Port"));
+				var password = _mailSettings.Password ?? Environment.GetEnvironmentVariable("Password");
+				await smtpClient.ConnectAsync(host, port, SecureSocketOptions.StartTls);
+				await smtpClient.AuthenticateAsync(emailSender, password);
+
+				await smtpClient.SendAsync(newEmail);
+				await smtpClient.DisconnectAsync(true);
+			}
+			catch (Exception ex)
+			{
+				var error = ex.Message;
+				throw;
+			}
+		}
+		}
 }

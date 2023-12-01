@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto;
 using System.Collections.Generic;
 using TheBugTracker.Data;
 using TheBugTracker.Models;
@@ -30,6 +32,22 @@ namespace TheBugTracker.Services
             bool result = (await _userManager.AddToRoleAsync(user, roleName)).Succeeded;
 
             return result;
+        }
+
+        public async Task<List<IdentityRole>> GetRolesAsync()
+        {
+            try
+            {
+                List<IdentityRole> result = new();
+                result = await _context.Roles.ToListAsync();
+
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<string> GetRoleNameByIdAsync(string roleId)

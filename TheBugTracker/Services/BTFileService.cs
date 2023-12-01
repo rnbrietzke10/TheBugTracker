@@ -21,7 +21,7 @@ namespace TheBugTracker.Services
             }
         }
 
-        public async Task<byte[]> ConvertFileToByteArrayAsybc(IFormFile file)
+        public async Task<byte[]> ConvertFileToByteArrayAsync(IFormFile file)
         {
             try
             {

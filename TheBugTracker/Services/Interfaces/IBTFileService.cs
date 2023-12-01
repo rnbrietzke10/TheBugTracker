@@ -2,7 +2,7 @@
 {
     public interface IBTFileService
     {
-        public Task<byte[]> ConvertFileToByteArrayAsybc(IFormFile file);
+        public Task<byte[]> ConvertFileToByteArrayAsync(IFormFile file);
         
         public string ConvertByteArrayToFile(byte[] fileData, string extension);
 
