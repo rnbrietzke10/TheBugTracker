@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using TheBugTracker.Extensions;
 
 namespace TheBugTracker.Models
 {
@@ -16,29 +16,32 @@ namespace TheBugTracker.Models
         public DateTimeOffset Created { get; set; }
 
         [DisplayName("Team Member")]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
 
         [DisplayName("File Description")]
         public string Description { get; set; }
 
-        [NotMapped]
-        [DataType(DataType.Upload)]
-        public IFormFile FormFile { get; set; }
+		[NotMapped]
+		[DisplayName("Select a file")]
+		[DataType(DataType.Upload)]
+		[MaxFileSize(1024 * 1024)]
+		[AllowedExtensions(new string[] { ".jpg", ".png", ".doc", ".docx", ".xls", ".xlsx", ".pdf" , ".ppt", ".pptx", ".html"})]
+		public IFormFile FormFile { get; set; }
 
-        [DisplayName("File Name")]
-        public string FileName { get; set; }
+		[DisplayName("File Name")]
+        public string? FileName { get; set; }
 
-        public byte[] FileData { get; set; }
+        public byte[]? FileData { get; set; }
 
         [DisplayName("File Extension")]
-        public string FileContentType { get; set; }
+        public string? FileContentType { get; set; }
 
 
         // Navigation Properties -- Creates Relatioship in DB
 
-        public virtual Ticket Ticket { get; set; }
+        public virtual Ticket? Ticket { get; set; }
 
-        public virtual BTUser User { get; set; }
+        public virtual BTUser? User { get; set; }
 
     }
 }

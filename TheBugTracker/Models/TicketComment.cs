@@ -17,14 +17,14 @@ namespace TheBugTracker.Models
         public int TicketId { get; set; }
 
         [DisplayName("Team Member")]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
 
 
         // Navigation Properties -- Creates Relatioship in DB
 
-        public virtual Ticket Ticket { get; set; }
+        public virtual Ticket? Ticket { get; set; }
 
-        public virtual BTUser User { get; set; }
+        public virtual BTUser? User { get; set; }
 
 
 

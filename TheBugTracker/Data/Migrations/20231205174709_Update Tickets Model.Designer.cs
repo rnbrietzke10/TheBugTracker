@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TheBugTracker.Data;
@@ -11,9 +12,11 @@ using TheBugTracker.Data;
 namespace TheBugTracker.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231205174709_Update Tickets Model")]
+    partial class UpdateTicketsModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -526,18 +529,22 @@ namespace TheBugTracker.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("FileContentType")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<byte[]>("FileData")
+                        .IsRequired()
                         .HasColumnType("bytea");
 
                     b.Property<string>("FileName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("TicketId")
                         .HasColumnType("integer");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -568,6 +575,7 @@ namespace TheBugTracker.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -884,7 +892,9 @@ namespace TheBugTracker.Migrations
 
                     b.HasOne("TheBugTracker.Models.BTUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Ticket");
 
@@ -901,7 +911,9 @@ namespace TheBugTracker.Migrations
 
                     b.HasOne("TheBugTracker.Models.BTUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Ticket");
 
