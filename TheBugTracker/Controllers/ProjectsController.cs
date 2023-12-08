@@ -12,13 +12,14 @@ using TheBugTracker.Extensions;
 using TheBugTracker.Models;
 using TheBugTracker.Models.Enums;
 using TheBugTracker.Models.ViewModels;
+using TheBugTracker.Services;
 using TheBugTracker.Services.Interfaces;
 
 namespace TheBugTracker.Controllers
 {
 	public class ProjectsController : Controller
 	{
-		private readonly ApplicationDbContext _context;
+		
 		private readonly IBTRolesService _rolesService;
 		private readonly IBTLookupService _lookupService;
 		private readonly IBTFileService _fileService;
@@ -26,9 +27,9 @@ namespace TheBugTracker.Controllers
 		private readonly UserManager<BTUser> _userManager;
 		private readonly IBTCompanyInfoService _companyInfoService;
 
-		public ProjectsController(ApplicationDbContext context, IBTRolesService rolesService, IBTLookupService lookupService, IBTFileService fileService, IBTProjectService projectService, UserManager<BTUser> userManager, IBTCompanyInfoService companyInfoService)
+		public ProjectsController(IBTRolesService rolesService, IBTLookupService lookupService, IBTFileService fileService, IBTProjectService projectService, UserManager<BTUser> userManager, IBTCompanyInfoService companyInfoService)
 		{
-			_context = context;
+		
 			_rolesService = rolesService;
 			_lookupService = lookupService;
 			_fileService = fileService;
@@ -37,12 +38,7 @@ namespace TheBugTracker.Controllers
 			_companyInfoService = companyInfoService;
 		}
 
-		// GET: Projects
-		public async Task<IActionResult> Index()
-		{
-			var applicationDbContext = _context.Projects.Include(p => p.Company).Include(p => p.ProjectPriority);
-			return View(await applicationDbContext.ToListAsync());
-		}
+
 
 		// GET: MyProjects
 		public async Task<IActionResult> MyProjects()
@@ -316,10 +312,16 @@ namespace TheBugTracker.Controllers
 					}
 
 				}
-				catch (Exception)
+				catch (DbUpdateConcurrencyException)
 				{
-
-					throw;
+					if (!await ProjectExists(model.Project.Id))
+					{
+						return NotFound();
+					}
+					else
+					{
+						throw;
+					}
 				}
 				// TODO: Redirect to All Projects
 				return RedirectToAction("Index");
@@ -333,7 +335,7 @@ namespace TheBugTracker.Controllers
 		//  archrive
 		public async Task<IActionResult> Archive(int? id)
 		{
-			if (id == null || _context.Projects == null)
+			if (id == null )
 			{
 				return NotFound();
 			}
@@ -371,7 +373,7 @@ namespace TheBugTracker.Controllers
 		//  archrive
 		public async Task<IActionResult> Restore(int? id)
 		{
-			if (id == null || _context.Projects == null)
+			if (id == null)
 			{
 				return NotFound();
 			}
@@ -403,9 +405,11 @@ namespace TheBugTracker.Controllers
 			return RedirectToAction(nameof(Index));
 		}
 
-		private bool ProjectExists(int id)
+		private async Task<bool> ProjectExists(int id)
 		{
-			return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
+			int companyId = User.Identity.GetCompanyId().Value;
+
+			return (await _projectService.GetAllProjectsByCompanyAsync(companyId)).Any(p => p.Id == id);
 		}
 	}
 }
