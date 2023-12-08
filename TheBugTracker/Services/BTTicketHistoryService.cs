@@ -150,7 +150,38 @@ namespace TheBugTracker.Services
             }
         }
 
-        public async Task<List<TicketHistory>> GetCompanyTicketsHistoriesAsync(int companyId)
+		public async Task AddHistoryAsync(int ticketId, string model, string userId)
+		{
+            try
+            {
+                Ticket ticket = await _context.Tickets.FindAsync(ticketId);
+                string description = model.ToLower().Replace("ticket", "");
+
+                description = $"New {description} added to ticket: {ticket.Title}";
+
+                TicketHistory history = new TicketHistory()
+                {
+                    TicketId = ticketId,
+                    Property = model,
+                    OldValue = "",
+                    NewValue = "",
+                    Created = DateTimeOffset.Now,
+                    UserId = userId,
+                    Description = description
+                };
+
+                await _context.TicketHistories.AddAsync(history);
+                await _context.SaveChangesAsync();  
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+		}
+
+		public async Task<List<TicketHistory>> GetCompanyTicketsHistoriesAsync(int companyId)
         {
             List<Project> projects = (await _context.Companies
                                                    .Include(c => c.Projects)

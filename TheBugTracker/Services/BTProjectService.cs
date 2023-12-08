@@ -232,15 +232,17 @@ namespace TheBugTracker.Services
 
         public async Task<BTUser> GetProjectManagerAsync(int projectId)
         {
-            Project project = await _context.Projects.Include(p => p.Members).FirstOrDefaultAsync(p => p.Id == projectId);
-
-            foreach (BTUser member in project?.Members)
-            {
-                if(await _rolesService.IsUserInRoleAsync(member, Roles.ProjectManager.ToString()))
-                {
-                    return member;
-                }
-            }
+            Project? project = await _context.Projects.Include(p => p.Members).FirstOrDefaultAsync(p => p.Id == projectId);
+           
+				foreach (BTUser member in project?.Members)
+				{
+					if (await _rolesService.IsUserInRoleAsync(member, Roles.ProjectManager.ToString()))
+					{
+						return member;
+					}
+				}
+			
+          
             return null;
         }
 
@@ -250,7 +252,7 @@ namespace TheBugTracker.Services
                                                      .FirstOrDefaultAsync(p => p.Id == projectId);
             List<BTUser> members = new List<BTUser>();
 
-            foreach (var user in members)
+            foreach (var user in project.Members)
             {
                 if (await _rolesService.IsUserInRoleAsync(user, role))
                 {
@@ -266,7 +268,35 @@ namespace TheBugTracker.Services
             throw new NotImplementedException();
         }
 
-        public async Task<List<Project>> GetUserProjectsAsync(string userId)
+		public async Task<List<Project>> GetUnassignedProjectsAsync(int companyId)
+        {
+			List<Project> result = new();
+			List<Project> projects = new();
+
+			try
+			{
+				projects = await _context.Projects
+										 .Include(p => p.ProjectPriority)
+										 .Where(p => p.CompanyId == companyId).ToListAsync();
+
+				foreach (Project project in projects)
+				{
+					if ((await GetProjectMembersByRoleAsync(project.Id, nameof(Roles.ProjectManager))).Count == 0)
+					{
+						result.Add(project);
+					}
+				}
+			}
+			catch (Exception)
+			{
+
+				throw;
+			}
+
+			return result;
+		}
+
+		public async Task<List<Project>> GetUserProjectsAsync(string userId)
         {
             try
             {

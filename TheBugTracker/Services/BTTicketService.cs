@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TheBugTracker.Data;
 using TheBugTracker.Models;
 using TheBugTracker.Models.Enums;
@@ -302,6 +304,25 @@ namespace TheBugTracker.Services
 			}
 		}
 
+		public async Task<Ticket> GetTicketAsNoTrackingAsync(int ticketId)
+		{
+			try
+			{
+				return await _context.Tickets
+									 .Include(t => t.DeveloperUser)
+									 .Include(t => t.Project)
+									 .Include(t => t.TicketPriority)
+									 .Include(t => t.TicketStatus)
+									 .Include(t => t.TicketType)
+									 .AsNoTracking()
+									 .FirstOrDefaultAsync(t => t.Id == ticketId);
+			}
+			catch (Exception)
+			{
+
+				throw;
+			}
+		}
 		public async Task<Ticket> GetTicketByIdAsync(int ticketId)
 		{
 			try
@@ -405,6 +426,22 @@ namespace TheBugTracker.Services
 				{
 					tickets = (await _projectService.GetUserProjectsAsync(userId)).SelectMany(p => p.Tickets).ToList();
 				}
+				return tickets;
+			}
+			catch (Exception)
+			{
+
+				throw;
+			}
+		}
+
+		public async Task<List<Ticket>> GetUnassignedTicketsAsync(int companyId)
+		{
+			List<Ticket> tickets = new List<Ticket>();
+
+			try
+			{
+				tickets = (await GetAllTicketsByCompanyAsync(companyId)).Where(t => string.IsNullOrEmpty(t.DeveloperUserId)).ToList();
 				return tickets;
 			}
 			catch (Exception)
